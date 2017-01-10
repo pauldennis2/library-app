@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Libra Ry App</title>
+</head>
+<body>
+{{^userName}}
+<form action="login" method="post">
+    <input type="text" placeholder="Enter username" name="userName">
+    <input type="password" placeholder="Enter password" name="password">
+</form>
+{{/userName}}
+
+{{#userName}}
+Hello {{userName}}.<br>
+
+{{#user-checkout-list}}
+Your checked out books:
+<ol>
+    <li>{{title}} by {{author}} ({{genre}})</li>
+</ol>
+{{/user-checkout-list}}
+{{^user-checkout-list}}
+(No books checked out)
+{{/user-checkout-list}}
+
+{{#available-checkout-list}}
+Books available for checkout:
+<ol>
+    <li>{{title}} by {{author}} ({{genre}})</li> <a href="/delete?bookId={{id}}">delete</a> <a href="/book-checkout?bookId={{id}}">checkout</a></li>
+</ol>
+{{/available-checkout-list}}
+{{^available-checkout-list}}
+(No books available for checkout at the present time)
+{{/available-checkout-list}}
+
+{{/userName}}
+
+</body>
+</html>
