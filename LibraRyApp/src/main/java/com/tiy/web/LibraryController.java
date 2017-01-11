@@ -6,7 +6,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 /**
  * Created by Paul Dennis on 1/10/2017.
@@ -15,23 +17,57 @@ import javax.servlet.http.HttpSession;
 public class LibraryController {
 
     @Autowired
-    UserRepo users;
+    UserRepository users;
 
     @Autowired
-    BookRepo books;
+    BookRepository books;
+
+    @PostConstruct
+    public void init() {
+        if (users.count() == 0) {
+            User user = new User();
+            user.userName = "Zach";
+            user.password = "hunter2";
+            users.save(user);
+        }
+    }
 
     @RequestMapping(path = "/", method = RequestMethod.GET)
-    public String home (HttpSession session, Model model) {
-        User user = (User) session.getAttribute("userName");
-        model.addAttribute("userName", user.getUserName());
-        model.addAttribute("user-checkout-list", books.findByUser(user));
-        model.addAttribute("available-checkout-list", books.findByUserIsNull());
+    public String home (HttpSession session, Model model, String genre, String author) {
+        User user = (User) session.getAttribute("user");
+        if (user != null) {
+            model.addAttribute("userName", user.getUserName());
+            model.addAttribute("name", user.getUserName());
+        }
+        List<Book> userCheckoutList = books.findByUser(user);
+        if (userCheckoutList.size() > 0) {
+            model.addAttribute("user-checkout-list", userCheckoutList);
+        }
+
+        List<Book> availableCheckoutList;
+        if (author != null) {
+            availableCheckoutList = books.findByAuthorAndUserIsNull(author);
+        } else if (genre != null) {
+            availableCheckoutList = books.findByGenreAndUserIsNull(genre);
+        } else {
+            availableCheckoutList = books.findByUserIsNull();
+        }
+        if (availableCheckoutList.size() > 0) {
+            model.addAttribute("available-checkout-list", availableCheckoutList);
+        }
         return "home";
     }
 
     @RequestMapping(path = "/login", method = RequestMethod.POST)
-    public String login (HttpSession session, String userName) {
-        session.setAttribute("userName", userName);
+    public String login (HttpSession session, String userName, String password) {
+        User user = users.findFirstByUserName(userName);
+        if (user == null) {
+            user = new User(userName, password);
+            users.save(user);
+        } else if (!password.equals(user.getPassword())) {
+            throw new WrongPasswordSilly();
+        }
+        session.setAttribute("user", user);
         return "redirect:/";
     }
 
@@ -59,7 +95,8 @@ public class LibraryController {
     }
 
     @RequestMapping(path = "/add-book", method = RequestMethod.POST)
-    public String addBook  (Book book) {
+    public String addBook  (String title, String author, String genre) {
+        Book book = new Book(title, author, genre);
         books.save(book);
         return "redirect:/";
     }

@@ -9,31 +9,59 @@
 <form action="login" method="post">
     <input type="text" placeholder="Enter username" name="userName">
     <input type="password" placeholder="Enter password" name="password">
+    <button type="submit">Login</button>
 </form>
 {{/userName}}
 
 {{#userName}}
-Hello {{userName}}.<br>
+Hello {{name}}.<br>
+<form action="logout" method="post">
+    <button type="submit">Logout</button>
+</form>
+<hr>
+<br>
 
-{{#user-checkout-list}}
+
+
 Your checked out books:
 <ol>
-    <li>{{title}} by {{author}} ({{genre}})</li>
+    {{#user-checkout-list}}
+    <li>{{title}} by {{author}} ({{genre}}) <a href ="/book-return?bookId={{id}}">return</a></li>
+    {{/user-checkout-list}}
 </ol>
-{{/user-checkout-list}}
+
 {{^user-checkout-list}}
 (No books checked out)
 {{/user-checkout-list}}
+<hr>
 
-{{#available-checkout-list}}
 Books available for checkout:
 <ol>
-    <li>{{title}} by {{author}} ({{genre}})</li> <a href="/delete?bookId={{id}}">delete</a> <a href="/book-checkout?bookId={{id}}">checkout</a></li>
+    {{#available-checkout-list}}
+    <li>{{title}} by {{author}} ({{genre}})</li> <a href="/delete-book?bookId={{id}}">delete</a> <a href="/book-checkout?bookId={{id}}">checkout</a></li>
+    {{/available-checkout-list}}
 </ol>
-{{/available-checkout-list}}
+
 {{^available-checkout-list}}
-(No books available for checkout at the present time)
+(No books matching parameters (if any) available for checkout at the present time)
 {{/available-checkout-list}}
+<hr>
+
+Search by author or genre (prioritizes author search - cannot do both at once)
+<form action="/" method="get">
+    <input type="text" placeholder="Enter author" name="author">
+    <input type="genre" placeholder="Enter genre" name="genre">
+    <button type="submit">Search</button>
+</form>
+<a href="/">Clear Search</a>
+
+<hr>
+<form action="/add-book" method="post">
+    <input type="text" placeholder="Enter title" name="title">
+    <input type="text" placeholder="Enter author" name="author">
+    <input type="text" placeholder="Enter genre" name="genre">
+    <button type="submit">Add Book</button>
+</form>
 
 {{/userName}}
 

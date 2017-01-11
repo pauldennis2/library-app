@@ -1,7 +1,5 @@
 package com.tiy.web;
 
-import org.springframework.data.annotation.Id;
-
 import javax.persistence.*;
 
 /**
@@ -12,6 +10,9 @@ import javax.persistence.*;
 @Table(name = "books")
 public class Book {
 
+    @ManyToOne
+    User user;
+//
     @Id
     @GeneratedValue
     int id;
@@ -20,19 +21,22 @@ public class Book {
     String title;
 
     @Column(nullable = false)
-    String genre;
-
-    @Column(nullable = false)
     String author;
 
-    @ManyToOne
-    User user;
+    @Column(nullable = false)
+    String genre;
 
 
-    public Book(String title, String genre, String author) {
+
+
+    public Book () {
+
+    }
+
+    public Book(String title, String author, String genre) {
         this.title = title;
-        this.genre = genre;
         this.author = author;
+        this.genre = genre;
         user = null;
     }
 
@@ -75,4 +79,6 @@ public class Book {
     public void setUser(User user) {
         this.user = user;
     }
+
+
 }
